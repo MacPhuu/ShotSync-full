@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "HuCvbPqtWjzOclHbtJBFtEh0SZJVXAVJtoFliwTHQ+4=",
+  "Source": "PoolBrackets-backend-dotnet",
+  "BasePath": "_content/PoolBrackets-backend-dotnet",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
