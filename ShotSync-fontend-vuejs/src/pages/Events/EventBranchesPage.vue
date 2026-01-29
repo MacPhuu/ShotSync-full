@@ -5,117 +5,48 @@
         <q-spinner-cube color="orange" size="5.5em" />
       </div>
     </div>
-    <div class="col-12 q-py-md column" v-if="!loading">
+    <div class="col-12 q-py-md column"  v-if="!loading">
       <div
         class="event-infor-component w-100 bg-no-2 q-my-sm row"
         style="height: auto; border-radius: 20px; width: 100%"
       >
-        <div class="col column justify-center items-center">
+        <div class="col column justify-center items-center" style="width: 95%">
           <div
             class="row bg-primary text-white text-h6 justify-center"
             style="height: 40px; width: 30%; border-radius: 0 0 10px 10px"
           >
             BRANCHES
           </div>
-          <div class="column q-my-lg" style="width: 90%" v-if="matchFound">
-            <BrancheComponent
-              class="bg-white text-primary"
-              v-for="(match, index) in matches.filter((m) => m.stage == 1)"
-              :key="index"
-              :id="match.id"
-              :firstPlayerName="match.firstPlayerName"
-              :firstPlayerPoint="match.firstPlayerPoint"
-              :secondPlayerName="match.secondPlayerName"
-              :secondPlayerPoint="match.secondPlayerPoint"
-              :isFinish="match.isFinish"
-            />
-          </div>
-          <div
-            class="row bg-primary text-white text-h6 justify-center q-my-md"
-            style="height: 40px; width: 30%; border-radius: 10px 10px 10px 10px"
-            v-if="matchFound"
-          >
-            LAST 16
-          </div>
-          <div class="column q-my-lg" style="width: 90%" v-if="matchFound">
-            <BrancheComponent
-              class="bg-white text-primary"
-              v-for="(match, index) in matches.filter((m) => m.stage == 2)"
-              :key="index"
-              :id="match.id"
-              :firstPlayerName="match.firstPlayerName"
-              :firstPlayerPoint="match.firstPlayerPoint"
-              :secondPlayerName="match.secondPlayerName"
-              :secondPlayerPoint="match.secondPlayerPoint"
-              :isFinish="match.isFinish"
-            />
-          </div>
-          <div
-            class="row bg-primary text-white text-h6 justify-center q-my-md"
-            style="height: 40px; width: 30%; border-radius: 10px 10px 10px 10px"
-            v-if="matchFound"
-          >
-            QUATER-FINAL
-          </div>
-          <div class="column q-my-lg" style="width: 90%" v-if="matchFound">
-            <BrancheComponent
-              class="bg-white text-primary"
-              v-for="(match, index) in matches.filter((m) => m.stage == 3)"
-              :id="match.id"
-              :key="index"
-              :firstPlayerName="match.firstPlayerName"
-              :firstPlayerPoint="match.firstPlayerPoint"
-              :secondPlayerName="match.secondPlayerName"
-              :secondPlayerPoint="match.secondPlayerPoint"
-              :isFinish="match.isFinish"
-            />
-          </div>
-          <div
-            class="row bg-primary text-white text-h6 justify-center q-my-md"
-            style="height: 40px; width: 30%; border-radius: 10px 10px 10px 10px"
-            v-if="matchFound"
-          >
-            SEMI-FINAL
-          </div>
-          <div class="column q-my-lg" style="width: 90%" v-if="matchFound">
-            <BrancheComponent
-              class="bg-white text-primary"
-              v-for="(match, index) in matches.filter((m) => m.stage == 4)"
-              :key="index"
-              :id="match.id"
-              :firstPlayerName="match.firstPlayerName"
-              :firstPlayerPoint="match.firstPlayerPoint"
-              :secondPlayerName="match.secondPlayerName"
-              :secondPlayerPoint="match.secondPlayerPoint"
-              :isFinish="match.isFinish"
-            />
-          </div>
-          <div
-            class="row bg-primary text-white text-h6 justify-center q-my-md"
-            style="height: 40px; width: 30%; border-radius: 10px 10px 10px 10px"
-            v-if="matchFound"
-          >
-            FINAL
-          </div>
-          <div class="column q-my-lg" style="width: 90%" v-if="matchFound">
-            <BrancheComponent
-              class="bg-white text-primary"
-              v-for="(match, index) in matches.filter((m) => m.stage == 5)"
-              :key="index"
-              :id="match.id"
-              :firstPlayerName="match.firstPlayerName"
-              :firstPlayerPoint="match.firstPlayerPoint"
-              :secondPlayerName="match.secondPlayerName"
-              :secondPlayerPoint="match.secondPlayerPoint"
-              :isFinish="match.isFinish"
-            />
+          <div v-if="matchFound && groupedMatches.length > 0" class="column items-center" style="width: 100%;">
+            <div v-for="(round, rIndex) in groupedMatches" :key="rIndex" class="column items-center w-100 q-mb-lg" style="width: 100%;">
+                <div
+                    class="row bg-primary text-white text-h6 justify-center q-my-md"
+                    style="height: 40px; width: 60%; border-radius: 10px"
+                >
+                    {{ round.name }}
+                </div>
+                <div class="column q-my-sm items-center" style="width: 90%">
+                    <BrancheComponent
+                        class="bg-white text-primary q-mb-md"
+                        v-for="(match, mIndex) in round.matches"
+                        :key="mIndex"
+                        :id="match.id"
+                        :tableNumber="match.tableNumber || 'TBD'"
+                        :firstPlayerName="match.firstPlayerName || 'TBD'"
+                        :firstPlayerPoint="match.firstPlayerPoint"
+                        :secondPlayerName="match.secondPlayerName || 'TBD'"
+                        :secondPlayerPoint="match.secondPlayerPoint"
+                        :isFinish="match.isFinish"
+                    />
+                </div>
+            </div>
           </div>
           <div
             class="row q-my-lg justify-center text-white text-h4 text-italic"
             style="width: 95%"
-            v-if="!matchFound"
+            v-if="!matchFound || groupedMatches.length === 0"
           >
-            No matches are currently being played.
+            No matches are currently being played or bracket not generated.
           </div>
         </div>
       </div>
@@ -125,10 +56,10 @@
 
 <script setup lang="ts">
 import BrancheComponent from 'components/BrancheComponent.vue'
-import { ref, onMounted } from 'vue'
-import type { Match } from '../../components/models'
+import { ref, onMounted, computed } from 'vue'
+import type { Match } from 'src/types/schema'
 import { useEventStore } from 'src/stores/event'
-import api from 'src/services/api'
+import MatchService from 'src/services/match.service'
 
 const eventStore = useEventStore()
 
@@ -140,10 +71,24 @@ const matchFound = ref(true)
 
 const matches = ref<Match[]>([])
 
+const groupedMatches = computed(() => {
+    const groups: { name: string; matches: Match[] }[] = [];
+    const roundNames = [...new Set(matches.value.map(m => m.roundName || 'Unknown Round'))];
+
+    // Custom sort order if needed, otherwise just appearance order
+    roundNames.forEach(name => {
+        groups.push({
+            name: name,
+            matches: matches.value.filter(m => m.roundName === name)
+        });
+    });
+
+    return groups;
+});
+
 const fetchMatchs = async () => {
   try {
-    const response = await api.get(`/matches/by-event/${eventId}`)
-    const data = response.data
+    const data = await MatchService.getMatchesByEvent(Number(eventId))
     console.log(data)
     matches.value = data
   } catch (error) {

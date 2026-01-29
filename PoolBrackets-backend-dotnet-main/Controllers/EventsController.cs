@@ -57,6 +57,8 @@ namespace PoolBrackets_backend_dotnet.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[ERROR] StartTournament Failed: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
                 return BadRequest(new { message = "Lỗi khi khai mạc: " + ex.Message });
             }
         }
@@ -74,6 +76,26 @@ namespace PoolBrackets_backend_dotnet.Controllers
             {
                 await _tournamentService.GenerateKnockoutPhaseAsync(id);
                 return Ok(new { message = "Đã tạo sơ đồ vòng Knock-out thành công." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // API: Reset giải đấu (Xóa sơ đồ)
+        // POST: api/events/{id}/reset
+        [Authorize(Roles = "1,2")]
+        [HttpPost("{id}/reset")]
+        public async Task<IActionResult> ResetTournament(int id)
+        {
+            var eventObj = await _eventService.GetEventByIdAsync(id);
+            if (eventObj == null) return NotFound(new { message = "Không tìm thấy giải đấu." });
+
+            try
+            {
+                await _tournamentService.ResetBracketAsync(id);
+                return Ok(new { message = "Đã reset giải đấu thành công. Bạn có thể bốc thăm lại." });
             }
             catch (Exception ex)
             {

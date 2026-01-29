@@ -23,14 +23,30 @@ namespace PoolBrackets_backend_dotnet.Controllers
             _tournamentService = tournamentService;
         }
 
-        // 1. Lấy danh sách trận đấu
-        // GET: api/matches/by-event/{eventId}
-        // Quyền: Public (Ai cũng xem được tỉ số)
         [HttpGet("by-event/{eventId}")]
         public async Task<IActionResult> GetMatchesByEvent(int eventId)
         {
             var matches = await _matchService.GetMatchesByEventAsync(eventId);
-            return Ok(matches);
+
+            var dtos = matches.Select(m => new MatchResponseDto
+            {
+                Id = m.Id,
+                EventId = m.EventId,
+                RoundName = m.RoundName,
+                RoundType = m.RoundType,
+                TableNumber = m.TableNumber,
+                FirstPlayerId = m.FirstPlayerId,
+                FirstPlayerName = m.FirstPlayer?.Name ?? "TBD",
+                FirstPlayerPoint = m.FirstPlayerPoint,
+                SecondPlayerId = m.SecondPlayerId,
+                SecondPlayerName = m.SecondPlayer?.Name ?? "TBD",
+                SecondPlayerPoint = m.SecondPlayerPoint,
+                IsFinish = m.IsFinish,
+                IsStart = m.IsStart,
+                NextMatchPosition = m.NextMatchPosition
+            });
+
+            return Ok(dtos);
         }
 
         // 2. Cập nhật tỷ số (Live Score)

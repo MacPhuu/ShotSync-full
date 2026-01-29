@@ -812,3 +812,4 @@ D:/PoolBrackets-backend-dotnet-main/PoolBrackets-backend-dotnet-main/obj/Debug/n
 /Users/phumac/Documents/GR_Hoang/PoolBrackets-backend-dotnet-main/obj/Debug/net8.0/PoolBrackets-backend-dotnet.pdb
 /Users/phumac/Documents/GR_Hoang/PoolBrackets-backend-dotnet-main/obj/Debug/net8.0/PoolBrackets-backend-dotnet.genruntimeconfig.cache
 /Users/phumac/Documents/GR_Hoang/PoolBrackets-backend-dotnet-main/obj/Debug/net8.0/ref/PoolBrackets-backend-dotnet.dll
+/Users/phumac/Documents/GR_Hoang/PoolBrackets-backend-dotnet-main/obj/Debug/net8.0/PoolBrackets-backend-dotnet.sourcelink.json

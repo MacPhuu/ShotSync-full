@@ -21,9 +21,9 @@
             <LiveScoreComponent
               v-for="(match, index) in matchs"
               :key="index"
-              :table="match.table"
-              :firstPlayerName="match.firstPlayerName"
-              :secondPlayerName="match.secondPlayerName"
+              :table="match.tableNumber || 'TBD'"
+              :firstPlayerName="match.firstPlayerName || 'TBD'"
+              :secondPlayerName="match.secondPlayerName || 'TBD'"
               :firstPoint="match.firstPlayerPoint"
               :secondPoint="match.secondPlayerPoint"
               :isStart="match.isStart"
@@ -43,9 +43,9 @@
 <script setup lang="ts">
 import LiveScoreComponent from 'components/LiveScoreComponent.vue'
 import { ref, onMounted } from 'vue'
-import type { Match } from '../../components/models';
+import type { Match } from 'src/types/schema';
 import { useEventStore } from 'src/stores/event';
-import api from 'src/services/api';
+import MatchService from 'src/services/match.service';
 
 const eventStore = useEventStore()
 
@@ -59,8 +59,7 @@ const matchs = ref<Match[]>([]);
 
 const fetchPlayers = async () => {
   try {
-    const response = await api.get(`/matches/by-event/${eventId}`)
-    const data = response.data
+    const data = await MatchService.getMatchesByEvent(Number(eventId))
     matchs.value = data
   } catch (error) {
     console.log("Error fetching player: ",error);

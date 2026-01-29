@@ -25,5 +25,7 @@ namespace PoolBrackets_backend_dotnet.Interfaces
         /// </summary>
         /// <param name="eventId">ID của giải đấu</param>
         Task GenerateKnockoutPhaseAsync(int eventId);
+
+        Task ResetBracketAsync(int eventId);
     }
 }

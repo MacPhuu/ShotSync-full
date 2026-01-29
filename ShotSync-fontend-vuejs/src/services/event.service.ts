@@ -46,7 +46,27 @@ class EventService {
     }
 
     async registerPlayerByEmail(eventId: number, email: string): Promise<void> {
-        await api.post(`/api/events/${eventId}/register-player`, email);
+        // The backend expects just the string in the body, but usually json.
+        // Based on typical axios usage:
+        await api.post(`/api/events/${eventId}/register-player`, JSON.stringify(email), {
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    async startTournament(eventId: number): Promise<void> {
+        await api.post(`/api/events/${eventId}/start`);
+    }
+
+    async seedPlayers(eventId: number, count: number = 16): Promise<void> {
+        await api.post(`/api/seed/event/${eventId}?count=${count}`);
+    }
+
+    async fillPlayers(eventId: number): Promise<void> {
+        await api.post(`/api/seed/event/${eventId}/fill`);
+    }
+
+    async resetTournament(eventId: number): Promise<void> {
+        await api.post(`/api/events/${eventId}/reset`);
     }
 }
 

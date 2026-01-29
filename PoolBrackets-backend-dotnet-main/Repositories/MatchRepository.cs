@@ -49,5 +49,15 @@ namespace PoolBrackets_backend_dotnet.Repositories
             _context.Matches.Add(match);
             await _context.SaveChangesAsync();
         }
+
+        public async Task DeleteMatchAsync(int id)
+        {
+            var match = await _context.Matches.FindAsync(id);
+            if (match != null)
+            {
+                _context.Matches.Remove(match);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

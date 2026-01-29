@@ -26,26 +26,50 @@ namespace PoolBrackets_backend_dotnet.Services
         {
             // 1. Kiểm tra tồn tại và tính hợp lệ
             var existingMatches = await _matchRepo.GetMatchesByEventAsync(eventId);
-            if (existingMatches.Any()) 
+            if (existingMatches.Any())
                 throw new InvalidOperationException("Sơ đồ thi đấu đã được tạo cho giải này.");
-
-            if (!IsPowerOfTwo(numberOfPlayers))
-                throw new Exception("Số lượng vận động viên phải là lũy thừa của 2 (16, 32, 64, 128).");
 
             // 2. Lấy danh sách VĐV và xáo trộn
             var players = (await _playerRepo.GetActivePlayersByEventAsync(eventId)).ToList();
+            Console.WriteLine($"[DEBUG] GenerateBracketAsync - Found {players.Count} active players.");
+
+            // Cập nhật số lượng người chơi theo thực tế nếu có
+            if (players.Count > 0)
+            {
+                numberOfPlayers = players.Count;
+            }
+
+            if (numberOfPlayers < 2)
+            {
+                Console.WriteLine($"[ERROR] Not enough players: {numberOfPlayers}");
+                throw new Exception($"Cần tối thiểu 2 vận động viên để bắt đầu (Hiện có: {numberOfPlayers}).");
+            }
+
+            if (!IsPowerOfTwo(numberOfPlayers))
+            {
+                Console.WriteLine($"[ERROR] IsPowerOfTwo failed for count {numberOfPlayers}");
+                throw new Exception($"Số lượng vận động viên thực tế ({numberOfPlayers}) phải là lũy thừa của 2 (4, 8, 16, 32...).");
+            }
+
             var rng = new Random();
             var shuffledPlayers = players.OrderBy(a => rng.Next()).ToList();
 
+            // Pool bàn thi đấu (Ví dụ 10 bàn)
+            var availableTables = Enumerable.Range(1, 10).Select(i => $"T-{i}").OrderBy(x => rng.Next()).ToList();
+            int tableIndex = 0;
+
             // --- GIAI ĐOẠN 1: VÒNG LOẠI 2 MẠNG (QUALIFYING) ---
             // Mục tiêu: Lọc từ N xuống N/2 người vào vòng Knock-out
-            
+
             // 1.1. Winners Round 1 (Ví dụ 32 VĐV -> 16 trận)
             var winnersR1 = new List<Match>();
             int matchesR1Count = numberOfPlayers / 2;
             for (int i = 0; i < matchesR1Count; i++)
             {
-                var m = await CreateMatch(eventId, "Vòng loại 1 (Nhánh thắng)", 1, 9, true);
+                string table = availableTables[tableIndex % availableTables.Count];
+                tableIndex++;
+
+                var m = await CreateMatch(eventId, "Vòng loại 1 (Nhánh thắng)", 1, 9, true, table);
                 m.FirstPlayerId = (i * 2 < shuffledPlayers.Count) ? shuffledPlayers[i * 2].Id : null;
                 m.SecondPlayerId = (i * 2 + 1 < shuffledPlayers.Count) ? shuffledPlayers[i * 2 + 1].Id : null;
                 await _matchRepo.UpdateMatchAsync(m);
@@ -171,22 +195,22 @@ namespace PoolBrackets_backend_dotnet.Services
 
         #region 3. HELPERS
 
-        private async Task<Match> CreateMatch(int eventId, string name, int type, int race, bool start)
+        private async Task<Match> CreateMatch(int eventId, string name, int type, int race, bool start, string? tableNumber = null)
         {
             var m = new Match
             {
                 EventId = eventId,
                 RoundName = name,
-                RoundType = type, 
+                RoundType = type,
                 RaceTo = race,
                 IsStart = start,
                 IsFinish = false,
+                TableNumber = tableNumber,
                 CreatedAt = DateTime.Now
             };
 
-            // BƯỚC CHỈNH SỬA:
-            await _matchRepo.AddMatchAsync(m); // Gọi hàm thêm vào DB (không return dòng này)
-            return m; // Trả về đối tượng m đã có ID sau khi SaveChanges
+            await _matchRepo.AddMatchAsync(m);
+            return m;
         }
 
         private async Task LinkMatches(Match current, Match next, int position, bool win)
@@ -216,6 +240,23 @@ namespace PoolBrackets_backend_dotnet.Services
         private bool IsPowerOfTwo(int n) => n > 0 && (n & (n - 1)) == 0;
 
         public async Task GenerateKnockoutPhaseAsync(int eventId) => await Task.CompletedTask;
+
+        public async Task ResetBracketAsync(int eventId)
+        {
+            var matches = await _matchRepo.GetMatchesByEventAsync(eventId);
+            foreach (var m in matches)
+            {
+                await _matchRepo.DeleteMatchAsync(m.Id);
+            }
+
+            var eventObj = await _eventRepo.GetEventByIdAsync(eventId);
+            if (eventObj != null)
+            {
+                eventObj.Status = Models.Enums.EventStatus.Draft;
+                eventObj.IsHappen = false;
+                await _eventRepo.UpdateEventAsync(eventObj);
+            }
+        }
 
         #endregion
     }

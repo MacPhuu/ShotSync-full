@@ -1,5 +1,8 @@
 <template>
-  <div class="player-component bg-no-2 q-my-sm row" style="height: 100px; border-radius: 20px">
+  <div class="player-component bg-no-2 q-my-sm row relative-position" style="height: 100px; border-radius: 20px; width: 100%;">
+    <div class="absolute-top text-center text-subtitle2 text-weight-bold q-mt-xs" style="width: 100%; color: #555;">
+        {{ tableNumber }}
+    </div>
     <div class="col-5 text-right self-center q-pl-md text-h4 text-bold">{{ firstPlayerName }}</div>
     <div class="col text-center self-center q-pl-md text-h4 text-bold">
       <div style="position: relative" v-if="!isFinish && isHost">
@@ -73,7 +76,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
-import api from 'src/services/api'
+import MatchService from 'src/services/match.service'
 import { Notify } from 'quasar'
 
 const role = ref<number>(parseInt(localStorage.getItem('role') || sessionStorage.getItem('role') || '0'))
@@ -81,6 +84,7 @@ const isHost = role.value === 2
 
 export interface BrancheComponentProps {
   id: number
+  tableNumber?: string
   firstPlayerName: string
   firstPlayerPoint: number
   secondPlayerName: string
@@ -90,6 +94,7 @@ export interface BrancheComponentProps {
 
 const props = withDefaults(defineProps<BrancheComponentProps>(), {
   id: 0,
+  tableNumber: 'TBD',
   firstPlayerName: '',
   firstPlayerPoint: 0,
   secondPlayerName: '',
@@ -99,7 +104,6 @@ const props = withDefaults(defineProps<BrancheComponentProps>(), {
 
 const firstPlayerPoint = ref(props.firstPlayerPoint)
 const secondPlayerPoint = ref(props.secondPlayerPoint)
-const id = ref(props.id)
 
 const plusFirstPlayerPoint = () => {
   firstPlayerPoint.value += 1
@@ -120,34 +124,36 @@ const minusSecondPlayerPoint = () => {
 }
 
 const updateMatchPoint = async () => {
-  const updateInfo = {
-    id: id.value,
-    firstPlayerPoint: firstPlayerPoint.value,
-    secondPlayerPoint: secondPlayerPoint.value,
-  }
-  const updateInfoJson = JSON.stringify(updateInfo)
   try {
-    await api.put('matches/update-match-point', updateInfoJson)
+    await MatchService.updateScore(props.id, firstPlayerPoint.value, secondPlayerPoint.value)
     Notify.create({
       type: 'positive',
       position: 'top-right',
-      message: 'Update successed!',
+      message: 'Score updated!',
     })
   } catch (error) {
-    console.error('Error fetching players:', error)
+    console.error('Error updating score:', error)
+    Notify.create({
+      type: 'negative',
+      message: 'Failed to update score'
+    })
   }
 }
 
 const finishMatch = async () => {
   try {
-    await api.put(`matches/match-finish/${id.value}`)
+    await MatchService.finishMatch(props.id)
     Notify.create({
       type: 'positive',
       position: 'top-right',
-      message: 'Update successed!',
+      message: 'Match finished and bracket updated!',
     })
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error finishing match:', error)
+    Notify.create({
+      type: 'negative',
+      message: 'Failed to finish match'
+    })
   }
 }
 </script>

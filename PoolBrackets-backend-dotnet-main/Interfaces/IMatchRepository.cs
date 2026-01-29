@@ -17,5 +17,8 @@ namespace PoolBrackets_backend_dotnet.Interfaces
 
         // Thêm trận đấu mới
         Task AddMatchAsync(Match match);
+
+        // Xóa trận đấu
+        Task DeleteMatchAsync(int id);
     }
 }

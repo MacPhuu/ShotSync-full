@@ -84,6 +84,25 @@ export interface UpdateUserDto {
     avatar?: string | null;
 }
 
+export interface Match {
+    id: number;
+    eventId: number;
+    eventName?: string;
+    roundName?: string;
+    roundType: number;
+    table?: string;
+    tableNumber?: string;
+    firstPlayerName?: string;
+    firstPlayerId?: number;
+    firstPlayerPoint: number;
+    secondPlayerName?: string;
+    secondPlayerId?: number;
+    secondPlayerPoint: number;
+    isFinish: boolean;
+    isStart: boolean;
+    nextMatchPosition: number;
+}
+
 export interface UserLoginDto {
     id?: number;
     userName: string;
