@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "🚀 Debug Quasar App (Chrome)",
+      "url": "http://localhost:9000",
+      "webRoot": "${workspaceFolder}",
+      "sourceMapPathOverrides": {
+        "webpack://shotsync_ranking-project/./src/*": "${webRoot}/src/*",
+        "/src/*": "${webRoot}/src/*"
+      },
+      "preLaunchTask": "npm: dev",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+    {
+      "type": "chrome",
+      "request": "attach",
+      "name": "🔗 Attach to Chrome (Quasar)",
+      "port": 9222,
+      "url": "http://localhost:9000",
+      "webRoot": "${workspaceFolder}/src",
+      "sourceMapPathOverrides": {
+        "webpack://shotsync_ranking-project/./src/*": "${webRoot}/*"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "🔧 Debug Quasar Dev Server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

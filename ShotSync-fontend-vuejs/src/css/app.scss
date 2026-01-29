@@ -1,0 +1,28 @@
+// app global css in SCSS form
+body {
+    font-family: 'Roboto Condensed', serif;
+}
+
+.bg-no-1 {
+    background: linear-gradient(to bottom, #46536c, #172339);
+}
+
+.bg-no-2 {
+    background: linear-gradient(to left, #b34900, #ff6600);
+}
+
+.bg-no-3 {
+    background: linear-gradient(to right, #ffffff, #c2bfc0);
+}
+
+.bg-no-4 {
+    background: linear-gradient(to top, #efefef, #c2bfc0);
+}
+
+.bg-no-5 {
+    background: linear-gradient(to bottom, #f45921, #ff6600);
+}
+
+.text-gray {
+    color: #46536c;
+}
